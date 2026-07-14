@@ -7,14 +7,17 @@ the orchestrator relays the user's reply via the "feedback" action.
 
 Actions:
     start    — begin a session from a structured trip or free-text request
-    feedback — relay one user reply into an awaiting session
+    feedback — relay the user's selections into an awaiting session
     status   — inspect a session (debugging)
+
+Feedback is structured, not free text: {"selected": [names to keep],
+"approve": bool, "finish": bool, "quit": bool}.
 
 Example:
     agent = ActivitiesAgent()
     out = agent.handle({"action": "start", "trip": {...}})
     out = agent.handle({"action": "feedback", "session_id": out["session_id"],
-                        "feedback": "approve"})
+                        "feedback": {"selected": ["Kinkaku-ji Temple"], "approve": True}})
 """
 
 from __future__ import annotations
@@ -28,7 +31,7 @@ from langgraph.types import Command
 from pydantic import ValidationError
 
 from travel_agent.graph import build_graph
-from travel_agent.models import TripRequest
+from travel_agent.models import FeedbackPayload, TripRequest
 
 AWAITING = "awaiting_feedback"
 COMPLETED = "completed"
@@ -105,7 +108,25 @@ class ActivitiesAgent:
                 f"Session is '{status}' and no longer accepts feedback", session_id=session_id
             )
 
-        result = self._app.invoke(Command(resume=str(feedback)), self._config(session_id))
+        if isinstance(feedback, str):
+            try:
+                feedback = json.loads(feedback)
+            except json.JSONDecodeError:
+                feedback = None
+        if not isinstance(feedback, dict):
+            return self._error(
+                "'feedback' must be a JSON object, e.g. "
+                '{"selected": ["Activity name"], "approve": false}',
+                session_id=session_id,
+            )
+        try:
+            payload = FeedbackPayload.model_validate(feedback)
+        except ValidationError as exc:
+            return self._error(f"Invalid feedback: {exc}", session_id=session_id)
+
+        result = self._app.invoke(
+            Command(resume=payload.model_dump()), self._config(session_id)
+        )
         return self._response(session_id, result)
 
     def _status(self, request: dict) -> dict:
@@ -194,7 +215,18 @@ def main() -> None:
     print(json.dumps(response, indent=2, default=str))
 
     while response.get("status") == AWAITING:
-        feedback = input("\nFeedback (or 'exit'): ").strip() or "tell me more"
+        raw = input(
+            "\nActivity names to keep (comma-separated), or 'approve' / 'finish' / 'exit': "
+        ).strip()
+        lowered = raw.lower()
+        if lowered == "approve":
+            feedback: dict = {"approve": True}
+        elif lowered == "finish":
+            feedback = {"finish": True}
+        elif lowered in {"exit", "quit"}:
+            feedback = {"quit": True}
+        else:
+            feedback = {"selected": [s.strip() for s in raw.split(",") if s.strip()]}
         response = agent.handle(
             {"action": "feedback", "session_id": response["session_id"], "feedback": feedback}
         )

@@ -70,29 +70,31 @@ def bounding_box(
     )
 
 
-def fetch_opentripmap_pois(
+def fetch_geoapify_pois(
     origin: GeoLocation,
-    kinds: str = "interesting_places,cultural,historic,natural,foods",
+    categories: str,
     limit: int = 25,
 ) -> list[dict]:
-    """Fetch POIs from OpenTripMap within drive radius (requires API key)."""
-    api_key = os.getenv("OPENTRIPMAP_API_KEY")
-    if not api_key:
+    """Fetch POIs from Geoapify Places within drive radius (requires GEOAPIFY_API_KEY).
+
+    Returns GeoJSON feature dicts; each feature's properties carry name, lat,
+    lon, and the list of Geoapify category ids.
+    """
+    api_key = os.getenv("GEOAPIFY_API_KEY")
+    if not api_key or not categories:
         return []
 
-    lon_min, lat_min, lon_max, lat_max = bounding_box(origin)
-    url = "https://api.opentripmap.com/0.1/en/places/bbox"
+    radius_m = int(max_drive_radius_miles() * 1609.34)
     params = {
-        "lon_min": lon_min,
-        "lat_min": lat_min,
-        "lon_max": lon_max,
-        "lat_max": lat_max,
-        "kinds": kinds,
-        "format": "json",
+        "categories": categories,
+        "filter": f"circle:{origin.longitude},{origin.latitude},{radius_m}",
+        # the drive-radius circle is huge (~350 km) — without proximity bias
+        # Geoapify returns arbitrary matches from anywhere inside it
+        "bias": f"proximity:{origin.longitude},{origin.latitude}",
         "limit": limit,
-        "apikey": api_key,
+        "apiKey": api_key,
     }
     with httpx.Client(timeout=20) as client:
-        response = client.get(url, params=params)
+        response = client.get("https://api.geoapify.com/v2/places", params=params)
         response.raise_for_status()
-        return response.json()
+        return response.json().get("features", [])

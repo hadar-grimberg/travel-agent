@@ -16,6 +16,7 @@ from langgraph.types import Command, interrupt
 
 from travel_agent.models import (
     INTEREST_GROUP,
+    FeedbackPayload,
     Itinerary,
     RecommendationResponse,
     ResearchBundle,
@@ -209,6 +210,8 @@ def merge_research_notes_node(state: TravelAgentState) -> dict:
 # Recommendation rounds allowed per category: 1 initial + up to 5 refinements
 MAX_ROUNDS_PER_CATEGORY = 6
 
+# Legacy free-text keywords — only used to map CLI debug input onto the
+# structured FeedbackPayload; the orchestrator sends the payload directly.
 APPROVE_PHRASES = [
     "approve", "approved", "next category", "next", "move on",
     "looks good", "that's enough", "done with this",
@@ -219,6 +222,36 @@ FINISH_PHRASES = [
     "create the plan", "build the plan", "make the plan",
 ]
 QUIT_WORDS = {"exit", "quit", "bye", "goodbye", "stop"}
+
+
+def _payload_from_text(text: str) -> FeedbackPayload:
+    """Map a legacy free-text reply (standalone CLI debugging) onto FeedbackPayload."""
+    lowered = text.lower().strip()
+    if any(phrase in lowered for phrase in FINISH_PHRASES):
+        return FeedbackPayload(finish=True)
+    if lowered in QUIT_WORDS:
+        return FeedbackPayload(quit=True)
+    if any(phrase in lowered for phrase in APPROVE_PHRASES):
+        return FeedbackPayload(approve=True)
+    return FeedbackPayload(selected=[text] if text.strip() else [])
+
+
+def _feedback_to_text(payload: FeedbackPayload, category: str) -> str:
+    """Render the structured feedback as a readable chat message for the LLM."""
+    parts = []
+    if payload.selected:
+        parts.append("I want to keep these activities: " + ", ".join(payload.selected) + ".")
+    if payload.finish:
+        parts.append("Please build the itinerary now.")
+    elif payload.quit:
+        parts.append("I'm done — no itinerary needed.")
+    elif payload.approve:
+        parts.append(f"I'm done with the {category} category, move on.")
+    elif payload.selected:
+        parts.append("Show me more like these.")
+    else:
+        parts.append("None of these appeal to me — show me different options.")
+    return " ".join(parts)
 
 
 def _current_category(state: TravelAgentState) -> str:
@@ -260,12 +293,12 @@ def generate_recommendations_node(state: TravelAgentState) -> dict:
         f"The user specifically checked these interests in this category: {checked_items}. "
         f"Remaining categories after this one: {remaining or 'none'}.\n"
         "Recommend only activities from the current category, prioritizing the checked "
-        "interests. Checked items like free_tours, guided_tours, have no POI data — "
+        "interests. Checked items like free_tours and guided_tours have no POI data — "
         "cover them from the research notes and your knowledge of the destination. "
         "When recommending food or dining, strictly honor the trip's dietary_restrictions "
         "(e.g. vegan, vegetarian, kosher). "
-        "In the question field, ask the user to pick favorites, request more like these, "
-        "or say 'approve' to move to the next category.\n\n"
+        "In the question field, ask the user to select the activities they want to keep, "
+        "request more like these, or approve the category to move on.\n\n"
         + parser.get_format_instructions()
     )
 
@@ -309,33 +342,38 @@ def generate_recommendations_node(state: TravelAgentState) -> dict:
 
 
 def wait_for_user_node(state: TravelAgentState) -> dict:
-    """Display the current recommendations and pause for user input."""
+    """Display the current recommendations and pause for structured feedback.
+
+    The orchestrator resumes with a FeedbackPayload dict ({selected, approve,
+    finish, quit}); plain strings (standalone CLI debugging) are mapped onto
+    the same payload via keyword matching. Selections are always recorded as
+    preferences — including when sent together with approve.
+    """
     recommendations = state.get("current_recommendations", "")
     category = _current_category(state)
 
     user_input = interrupt({
         "display": recommendations,
         "prompt": (
-            f"Pick your favorite '{category}' activities, ask for more like these, "
-            "or say 'approve' to move to the next category:"
+            "Reply with a JSON feedback object: 'selected' = names of the "
+            f"'{category}' activities to keep, 'approve' = category done, "
+            "'finish' = build the itinerary now, 'quit' = end without one."
         ),
     })
-    user_input_str = str(user_input)
+    if isinstance(user_input, dict):
+        payload = FeedbackPayload.model_validate(user_input)
+    else:
+        payload = _payload_from_text(str(user_input))
 
+    text = _feedback_to_text(payload, category)
     updates: dict = {
-        "last_user_input": user_input_str,
-        "messages": [HumanMessage(content=user_input_str)],
+        "last_user_input": text,
+        "last_feedback": payload.model_dump(),
+        "messages": [HumanMessage(content=text)],
     }
-
-    # Record actual picks only — approval/quit commands aren't preferences
-    lowered = user_input_str.lower().strip()
-    is_command = (
-        any(p in lowered for p in APPROVE_PHRASES + FINISH_PHRASES)
-        or lowered in QUIT_WORDS
-    )
-    if not is_command:
+    if payload.selected:
         updates["user_preferences"] = (state.get("user_preferences") or []) + [
-            f"[{category}] {user_input_str}"
+            f"[{category}] {name}" for name in payload.selected
         ]
     return updates
 
@@ -343,20 +381,20 @@ def wait_for_user_node(state: TravelAgentState) -> dict:
 def should_continue_chat(
     state: TravelAgentState,
 ) -> Literal["generate_recommendations", "advance_category", "synthesize_itinerary", "__end__"]:
-    """Route after each user reply:
-    - finish phrase → build the full itinerary immediately
-    - exit          → end without an itinerary
-    - approval, or refinement limit reached → advance to the next category
-    - else          → refine recommendations within the current category
+    """Route on the structured feedback flags:
+    - finish → build the full itinerary immediately
+    - quit   → end without an itinerary
+    - approve, or refinement limit reached → advance to the next category
+    - else   → refine recommendations within the current category
     """
-    last = (state.get("last_user_input") or "").lower().strip()
+    feedback = state.get("last_feedback") or {}
 
-    if any(phrase in last for phrase in FINISH_PHRASES):
+    if feedback.get("finish"):
         return "synthesize_itinerary"
-    if any(word in last for word in QUIT_WORDS):
+    if feedback.get("quit"):
         return "__end__"
     if (
-        any(phrase in last for phrase in APPROVE_PHRASES)
+        feedback.get("approve")
         or state.get("category_refinement_count", 0) >= MAX_ROUNDS_PER_CATEGORY
     ):
         return "advance_category"

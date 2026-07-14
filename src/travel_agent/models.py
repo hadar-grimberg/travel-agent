@@ -32,8 +32,8 @@ class InterestOption(str, Enum):
     """Closed checklist the orchestrator presents to the user.
 
     Contains the 8 group names (check one to get its whole group), granular
-    OpenTripMap kind slugs (the value IS the API query slug), and a few
-    web-search-backed items that have no POI kind (free_tours, ...).
+    activity items (mapped internally to POI-provider categories), and a few
+    web-search-backed items that have no POI category (free_tours, ...).
     """
 
     # whole-group selections
@@ -127,7 +127,7 @@ class InterestOption(str, Enum):
     GUIDED_TOURS = "guided_tours"
 
 
-_GROUP_ITEMS: dict[Interest, list[InterestOption]] = {
+GROUP_ITEMS: dict[Interest, list[InterestOption]] = {
     # tours are grouped under culture & history
     Interest.CULTURE: [
         InterestOption.CULTURE, InterestOption.MUSEUMS,
@@ -182,10 +182,10 @@ _GROUP_ITEMS: dict[Interest, list[InterestOption]] = {
 
 # checklist item -> its category group (round)
 INTEREST_GROUP: dict[InterestOption, Interest] = {
-    item: group for group, items in _GROUP_ITEMS.items() for item in items
+    item: group for group, items in GROUP_ITEMS.items() for item in items
 }
 
-# items with no OpenTripMap kind — researched via web search / LLM knowledge
+# items with no POI category — researched via web search / LLM knowledge
 NON_POI_OPTIONS: frozenset[InterestOption] = frozenset({
     InterestOption.FREE_TOURS,
     InterestOption.GUIDED_TOURS,
@@ -315,6 +315,27 @@ class RecommendationResponse(BaseModel):
     categories_remaining: list[str] = Field(
         default_factory=list,
         description="Categories not yet covered after this one",
+    )
+
+
+class FeedbackPayload(BaseModel):
+    """Structured user feedback for one recommendation round, relayed by the orchestrator."""
+
+    selected: list[str] = Field(
+        default_factory=list,
+        description="Names of recommended activities the user wants to keep",
+    )
+    approve: bool = Field(
+        default=False,
+        description="Current category is done — move to the next one",
+    )
+    finish: bool = Field(
+        default=False,
+        description="Skip remaining categories and build the itinerary now",
+    )
+    quit: bool = Field(
+        default=False,
+        description="End the session without an itinerary",
     )
 
 

@@ -1,0 +1,1001 @@
+[
+  {
+    "request": {
+      "action": "start",
+      "trip": {
+        "destination": "Kyoto",
+        "start_date": "2026-04-03",
+        "end_date": "2026-04-09",
+        "budget_usd": 2800,
+        "travelers": 2,
+        "interests": [
+          "buddhist_temples",
+          "monasteries",
+          "free_tours",
+          "view_points",
+          "gardens_and_parks",
+          "restaurants",
+          "cafes"
+        ],
+        "travel_style": "balanced",
+        "dietary_restrictions": [
+          "vegetarian"
+        ],
+        "notes": "temples and kaiseki"
+      }
+    },
+    "response": {
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "status": "awaiting_feedback",
+      "recommendations": {
+        "category": "culture",
+        "round": 1,
+        "message": "Here are some cultural highlights near Kyoto that match your interests in Buddhist temples, monasteries, and free tours. Each spot includes a brief description, travel time from your base, and any reservation notes.",
+        "recommendations": [
+          {
+            "name": "筒石観音堂",
+            "description": "A historic Buddhist temple located in the Kubiki region, offering serene worship spaces and traditional architecture.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 212,
+            "reservation_required": false
+          },
+          {
+            "name": "浄興寺",
+            "description": "A tranquil temple in Joetsu featuring beautiful gardens and a peaceful meditation hall.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 218,
+            "reservation_required": false
+          },
+          {
+            "name": "正光寺",
+            "description": "An ancient temple known for its intricate wooden carvings and seasonal garden displays.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 218,
+            "reservation_required": false
+          },
+          {
+            "name": "専称寺",
+            "description": "A modest monastery offering quiet contemplation areas and a small tea garden.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 218,
+            "reservation_required": false
+          }
+        ],
+        "question": "Which of these cultural sites would you like to keep, or would you like more options similar to these? You can also approve this category to move on to the next one.",
+        "categories_remaining": [
+          "nature",
+          "food"
+        ]
+      },
+      "prompt": "Reply with a JSON feedback object: 'selected' = names of the 'culture' activities to keep, 'approve' = category done, 'finish' = build the itinerary now, 'quit' = end without one."
+    }
+  },
+  {
+    "request": {
+      "action": "feedback",
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "feedback": {
+        "selected": [
+          "筒石観音堂",
+          "浄興寺"
+        ],
+        "approve": false
+      }
+    },
+    "response": {
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "status": "awaiting_feedback",
+      "recommendations": {
+        "category": "culture",
+        "round": 2,
+        "message": "Here are additional Buddhist temples and monasteries that share the quiet, historic vibe of 筒石観音堂 and 浄興寺. All are within about a 4‑hour drive from Kyoto and fit your interest in peaceful cultural sites.",
+        "recommendations": [
+          {
+            "name": "正光寺",
+            "description": "A historic temple in Joetsu with beautifully preserved wooden structures and a tranquil garden, offering a reflective atmosphere similar to 浄興寺.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 218,
+            "reservation_required": false
+          },
+          {
+            "name": "専称寺",
+            "description": "A modest monastery nestled in the countryside, featuring a simple meditation hall and a small tea garden that invites quiet contemplation.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 218,
+            "reservation_required": false
+          },
+          {
+            "name": "西本願寺（Nishihonganji）",
+            "description": "One of Kyoto’s major Zen temples, known for its expansive grounds, historic buildings, and seasonal garden displays. A larger site but still offers serene corners.",
+            "estimated_cost_usd": 30.0,
+            "duration_hours": 2.5,
+            "drive_minutes_from_base": 15,
+            "reservation_required": false
+          },
+          {
+            "name": "東本願寺（Higashihonganji）",
+            "description": "Adjacent to Nishihonganji, this temple complex provides quiet inner halls and a beautiful pond garden, perfect for a reflective walk.",
+            "estimated_cost_usd": 30.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 15,
+            "reservation_required": false
+          },
+          {
+            "name": "清水寺（Kiyomizu‑dera）",
+            "description": "Famous for its wooden stage and city views, the temple’s lesser‑known back‑garden offers a peaceful spot away from the crowds.",
+            "estimated_cost_usd": 30.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 20,
+            "reservation_required": false
+          },
+          {
+            "name": "龍安寺（Ryoan‑ji）",
+            "description": "Renowned for its rock garden, the surrounding temple grounds provide a calm setting for meditation and quiet strolling.",
+            "estimated_cost_usd": 30.0,
+            "duration_hours": 1.5,
+            "drive_minutes_from_base": 12,
+            "reservation_required": false
+          },
+          {
+            "name": "大徳寺（Daitoku‑ji）",
+            "description": "A large Zen complex with multiple sub‑temples, many of which host free tea‑ceremony experiences and quiet meditation halls.",
+            "estimated_cost_usd": 30.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 10,
+            "reservation_required": false
+          },
+          {
+            "name": "高野山（Koyasan）日帰りツアー",
+            "description": "A day‑trip to the sacred mountain monastery complex, featuring Okunoin cemetery, Kongōbu‑ji temple, and opportunities for meditation.",
+            "estimated_cost_usd": 120.0,
+            "duration_hours": 8.0,
+            "drive_minutes_from_base": 240,
+            "reservation_required": false
+          }
+        ],
+        "question": "Which of these additional sites would you like to keep, or would you like even more options? When you’re ready, we can move on to the next category.",
+        "categories_remaining": [
+          "nature",
+          "food"
+        ]
+      },
+      "prompt": "Reply with a JSON feedback object: 'selected' = names of the 'culture' activities to keep, 'approve' = category done, 'finish' = build the itinerary now, 'quit' = end without one."
+    }
+  },
+  {
+    "request": {
+      "action": "feedback",
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "feedback": {
+        "selected": [
+          "正光寺"
+        ],
+        "approve": true
+      }
+    },
+    "response": {
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "status": "awaiting_feedback",
+      "recommendations": {
+        "category": "nature",
+        "round": 1,
+        "message": "Here are nature‑focused spots near Kyoto (and a bit farther in Niigata) that match your interest in gardens, parks, and scenic viewpoints. All are within a 4‑hour drive from your base.",
+        "recommendations": [
+          {
+            "name": "新井総合公園",
+            "description": "A spacious public park in Myoko with walking trails, a pond, and seasonal flower beds – great for a relaxed stroll.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 212,
+            "reservation_required": false
+          },
+          {
+            "name": "学校町2号公園",
+            "description": "A local park in Myoko offering open lawns, a small creek, and shaded benches – ideal for a picnic.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 213,
+            "reservation_required": false
+          },
+          {
+            "name": "市民の広場",
+            "description": "Community square in Myoko with landscaped gardens, a fountain, and easy walking paths.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 214,
+            "reservation_required": false
+          },
+          {
+            "name": "高田城址公園芝生広場",
+            "description": "Historic castle‑site park in Joetsu featuring grassy fields, stone walls, and panoramic views of the surrounding hills.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 219,
+            "reservation_required": false
+          },
+          {
+            "name": "わんパーク桜町",
+            "description": "A small park in Joetsu known for its cherry‑blossom trees in spring and a gentle walking loop.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 219,
+            "reservation_required": false
+          },
+          {
+            "name": "春日山公園",
+            "description": "Hilltop park offering sweeping views of Joetsu city and surrounding mountains – perfect for a sunrise or sunset visit.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 219,
+            "reservation_required": false
+          },
+          {
+            "name": "Joshin‑Etsu Expressway Scenic Spot",
+            "description": "Designated pull‑over area with panoramic vistas of the Niigata landscape, ideal for a quick photo stop.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 214,
+            "reservation_required": true
+          }
+        ],
+        "question": "Which of these nature spots would you like to keep, or would you like more options similar to these? When ready, we can move on to the next category.",
+        "categories_remaining": [
+          "food"
+        ]
+      },
+      "prompt": "Reply with a JSON feedback object: 'selected' = names of the 'nature' activities to keep, 'approve' = category done, 'finish' = build the itinerary now, 'quit' = end without one."
+    }
+  },
+  {
+    "request": {
+      "action": "feedback",
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "feedback": {
+        "selected": [
+          "新井総合公園",
+          "学校町2号公園"
+        ],
+        "approve": false
+      }
+    },
+    "response": {
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "status": "awaiting_feedback",
+      "recommendations": {
+        "category": "nature",
+        "round": 2,
+        "message": "Here are more parks and open‑space spots near Kyoto (in the Myōkō / Joetsu area) that share the relaxed, family‑friendly vibe of 新井総合公園 and 学校町2号公園.",
+        "recommendations": [
+          {
+            "name": "市民の広場",
+            "description": "A community park in Myōkō with landscaped gardens, a small creek, and plenty of benches – perfect for a leisurely walk or picnic.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 214,
+            "reservation_required": false
+          },
+          {
+            "name": "高田城址公園芝生広場",
+            "description": "Historic castle‑site park in Joetsu featuring open grassy fields, stone walls, and panoramic hilltop views.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 219,
+            "reservation_required": false
+          },
+          {
+            "name": "わんパーク桜町",
+            "description": "A small, tranquil park in Joetsu known for its cherry‑blossom trees in spring and a gentle walking loop.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 219,
+            "reservation_required": false
+          },
+          {
+            "name": "春日山公園",
+            "description": "Hilltop park offering sweeping views of Joetsu city and surrounding mountains – ideal for sunrise or sunset visits.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 219,
+            "reservation_required": false
+          },
+          {
+            "name": "Myoko Nature Trail (Myoko‑Sanroku Trail)",
+            "description": "A short, easy walking trail near Myōkō town that winds through forested hills, with seasonal wildflowers and picnic spots.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.5,
+            "drive_minutes_from_base": 213,
+            "reservation_required": false
+          },
+          {
+            "name": "Joetsu Riverside Park",
+            "description": "A riverside green space along the Shinano River with walking paths, shaded areas, and river‑view benches.",
+            "estimated_cost_usd": 25.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 217,
+            "reservation_required": false
+          }
+        ],
+        "question": "Which of these nature spots would you like to keep, or would you like even more options? When you’re ready, we can move on to the food category.",
+        "categories_remaining": [
+          "food"
+        ]
+      },
+      "prompt": "Reply with a JSON feedback object: 'selected' = names of the 'nature' activities to keep, 'approve' = category done, 'finish' = build the itinerary now, 'quit' = end without one."
+    }
+  },
+  {
+    "request": {
+      "action": "feedback",
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "feedback": {
+        "selected": [
+          "市民の広場"
+        ],
+        "approve": true
+      }
+    },
+    "response": {
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "status": "awaiting_feedback",
+      "recommendations": {
+        "category": "food",
+        "round": 1,
+        "message": "Here are vegetarian‑friendly dining options near Kyoto (including a few in the Joetsu area) that match your interests in restaurants and cafés. All are within a 4‑hour drive from your base and fit your vegetarian diet.",
+        "recommendations": [
+          {
+            "name": "えほん",
+            "description": "Cozy café in Itoigawa serving a variety of vegetarian Japanese set meals and specialty teas. Known for its calm atmosphere and seasonal menu.",
+            "estimated_cost_usd": 60.0,
+            "duration_hours": 1.5,
+            "drive_minutes_from_base": 207,
+            "reservation_required": false
+          },
+          {
+            "name": "海のだいどこや",
+            "description": "Seafood‑focused restaurant in Joetsu that offers a dedicated vegetarian kaiseki tasting menu using local vegetables and tofu. Reservations recommended.",
+            "estimated_cost_usd": 60.0,
+            "duration_hours": 1.5,
+            "drive_minutes_from_base": 215,
+            "reservation_required": true
+          },
+          {
+            "name": "つるこし",
+            "description": "Chic café in Joetsu serving vegetarian ramen, rice bowls, and Japanese‑style desserts. Popular with locals; seating fills up quickly.",
+            "estimated_cost_usd": 60.0,
+            "duration_hours": 1.5,
+            "drive_minutes_from_base": 218,
+            "reservation_required": true
+          },
+          {
+            "name": "Sakua de la noche",
+            "description": "Fusion café in Joetsu offering vegetarian tapas, craft coffee, and a relaxed evening vibe. No reservation needed.",
+            "estimated_cost_usd": 60.0,
+            "duration_hours": 1.5,
+            "drive_minutes_from_base": 218,
+            "reservation_required": false
+          }
+        ],
+        "question": "Which of these food venues would you like to keep, or would you like more suggestions similar to these? When you’re ready, we’ll finalize your activity itinerary.",
+        "categories_remaining": []
+      },
+      "prompt": "Reply with a JSON feedback object: 'selected' = names of the 'food' activities to keep, 'approve' = category done, 'finish' = build the itinerary now, 'quit' = end without one."
+    }
+  },
+  {
+    "request": {
+      "action": "feedback",
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "feedback": {
+        "selected": [
+          "えほん",
+          "海のだいどこや"
+        ],
+        "approve": false
+      }
+    },
+    "response": {
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "status": "awaiting_feedback",
+      "recommendations": {
+        "category": "food",
+        "round": 2,
+        "message": "Here are a few more vegetarian‑friendly restaurants and cafés near Kyoto (including additional options in Joetsu) that match the style of えほん and 海のだいどこや.",
+        "recommendations": [
+          {
+            "name": "つるこし",
+            "description": "Cozy Joetsu café known for its vegetarian ramen, tofu‑based rice bowls, and Japanese‑style desserts. Popular with locals; reservations recommended for dinner.",
+            "estimated_cost_usd": 60.0,
+            "duration_hours": 1.5,
+            "drive_minutes_from_base": 218,
+            "reservation_required": true
+          },
+          {
+            "name": "Sakua de la noche",
+            "description": "Fusion‑style café in Joetsu offering vegetarian tapas, craft coffee, and a relaxed evening atmosphere. No reservation needed.",
+            "estimated_cost_usd": 60.0,
+            "duration_hours": 1.5,
+            "drive_minutes_from_base": 218,
+            "reservation_required": false
+          },
+          {
+            "name": "Mumokuteki Café",
+            "description": "Vegetarian café in central Kyoto serving seasonal set meals, matcha sweets, and a quiet garden seating area. Walk‑up only; no reservation required.",
+            "estimated_cost_usd": 55.0,
+            "duration_hours": 1.5,
+            "drive_minutes_from_base": 10,
+            "reservation_required": false
+          },
+          {
+            "name": "Veg Out Kyoto",
+            "description": "Modern vegetarian restaurant near the Philosopher’s Path, offering kaiseki‑style multi‑course meals using local vegetables and tofu. Reservations recommended for dinner.",
+            "estimated_cost_usd": 85.0,
+            "duration_hours": 2.0,
+            "drive_minutes_from_base": 12,
+            "reservation_required": true
+          }
+        ],
+        "question": "Which of these new food venues would you like to keep, or would you like even more suggestions? When you’re ready, we’ll finalize your activity list.",
+        "categories_remaining": []
+      },
+      "prompt": "Reply with a JSON feedback object: 'selected' = names of the 'food' activities to keep, 'approve' = category done, 'finish' = build the itinerary now, 'quit' = end without one."
+    }
+  },
+  {
+    "request": {
+      "action": "feedback",
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "feedback": {
+        "selected": [
+          "つるこし"
+        ],
+        "approve": true
+      }
+    },
+    "response": {
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "status": "completed",
+      "itinerary": {
+        "destination": "Kyoto",
+        "trip_days": 7,
+        "summary": "A balanced 7‑day itinerary that centers on the nine confirmed activities – three cultural sites, three nature parks, and three vegetarian restaurants – all reachable within a 4‑hour drive from Kyoto. Two dedicated day‑trips cover the Niigata region, while the remaining days give you relaxed time in Kyoto to enjoy vegetarian meals and explore at your own pace.",
+        "days": [
+          {
+            "day_number": 1,
+            "date": "2026-04-03",
+            "theme": "Arrival & settle in Kyoto",
+            "morning": [
+              "Arrive at Kansai International Airport, take the JR Haruka to Kyoto Station",
+              "Check‑in at your accommodation (handled by the lodging agent)"
+            ],
+            "afternoon": [
+              "Leisurely walk around the historic Higashiyama district – optional free self‑guided stroll"
+            ],
+            "evening": [
+              "Vegetarian kaiseki dinner at Kikunoi H (reservation recommended; tip‑based) – aligns with your interest in kaiseki"
+            ],
+            "meals": [
+              "Breakfast: Hotel breakfast (included)",
+              "Lunch: Café Bibliothèque (vegetarian menu, backup: Veg Out Kyoto)",
+              "Dinner: Kikunoi H – vegetarian kaiseki (reserve in advance)"
+            ],
+            "estimated_daily_cost_usd": 96.5,
+            "driving_notes": null
+          },
+          {
+            "day_number": 2,
+            "date": "2026-04-04",
+            "theme": "Myoko nature parks & Itoigawa cultural site",
+            "morning": [
+              "Drive 3 h 30 min to Myoko",
+              "Visit 新井総合公園",
+              "Visit 学校町2号公園",
+              "Visit 市民の広場"
+            ],
+            "afternoon": [
+              "Lunch at えほん (vegetarian, no reservation needed) in Itoigawa",
+              "Visit 筒石観音堂 (culture) – short walk around the temple grounds"
+            ],
+            "evening": [
+              "Dinner at 海のだいどこや in Joetsu (reservation required; enjoy seaside vegetarian dishes)",
+              "Return to Kyoto (≈3 h 30 min drive)"
+            ],
+            "meals": [
+              "Breakfast: Hotel breakfast",
+              "Lunch: えほん – vegetarian set (backup: local noodle shop with veggie options)",
+              "Dinner: 海のだいどこや – reserve via provided link"
+            ],
+            "estimated_daily_cost_usd": 210.0,
+            "driving_notes": "Total round‑trip driving ≈7 hours. Depart Kyoto by 07:00 am, aim to be back by 21:00 pm. Ensure you have a GPS or map app for rural roads."
+          },
+          {
+            "day_number": 3,
+            "date": "2026-04-05",
+            "theme": "Joetsu temple day",
+            "morning": [
+              "Drive to Joetsu (≈3 h)",
+              "Visit 浄興寺",
+              "Visit 正光寺"
+            ],
+            "afternoon": [
+              "Free time to explore Joetsu town centre or relax at a café"
+            ],
+            "evening": [
+              "Dinner at つるこし (reservation required; vegetarian izakaya style)",
+              "Drive back to Kyoto"
+            ],
+            "meals": [
+              "Breakfast: Hotel breakfast",
+              "Lunch: Veggie House Joetsu (vegetarian café, backup: convenience store bento with veggie options)",
+              "Dinner: つるこし – reserve via provided link"
+            ],
+            "estimated_daily_cost_usd": 210.0,
+            "driving_notes": "Round‑trip driving ≈6 hours. Leave Kyoto by 07:30 am, return by 20:30 pm."
+          },
+          {
+            "day_number": 4,
+            "date": "2026-04-06",
+            "theme": "Relaxed Kyoto – free exploration",
+            "morning": [
+              "Free morning – optional stroll along the Kamo River"
+            ],
+            "afternoon": [
+              "Free afternoon – browse local shops or rest at your lodging"
+            ],
+            "evening": [
+              "Vegetarian dinner at Mumokuteki Café (backup: Veg Out Kyoto)"
+            ],
+            "meals": [
+              "Breakfast: Hotel breakfast",
+              "Lunch: Café Bibliothèque (vegetarian) or any local café",
+              "Dinner: Mumokuteki Café – vegetarian set menu"
+            ],
+            "estimated_daily_cost_usd": 96.5,
+            "driving_notes": null
+          },
+          {
+            "day_number": 5,
+            "date": "2026-04-07",
+            "theme": "Relaxed Kyoto – market & tea",
+            "morning": [
+              "Free morning – optional visit to Nishiki Market for vegetarian snacks"
+            ],
+            "afternoon": [
+              "Free afternoon – optional tea ceremony at a local temple (self‑guided, no fee)"
+            ],
+            "evening": [
+              "Vegetarian dinner at Aji no Kuni (backup: Veggie House Kyoto)"
+            ],
+            "meals": [
+              "Breakfast: Hotel breakfast",
+              "Lunch: Veg Out Kyoto – vegetarian bowls",
+              "Dinner: Aji no Kuni – vegetarian kaiseki (no reservation needed)"
+            ],
+            "estimated_daily_cost_usd": 96.5,
+            "driving_notes": null
+          },
+          {
+            "day_number": 6,
+            "date": "2026-04-08",
+            "theme": "Free day in Kyoto",
+            "morning": [
+              "Free morning – pack, enjoy a leisurely walk in a nearby park"
+            ],
+            "afternoon": [
+              "Free afternoon – optional museum visit or rest"
+            ],
+            "evening": [
+              "Vegetarian dinner at Kanga-an (backup: Café Bibliothèque)"
+            ],
+            "meals": [
+              "Breakfast: Hotel breakfast",
+              "Lunch: Café Bibliothèque or any vegetarian café",
+              "Dinner: Kanga-an – vegetarian shojin ryori (no reservation needed)"
+            ],
+            "estimated_daily_cost_usd": 96.5,
+            "driving_notes": null
+          },
+          {
+            "day_number": 7,
+            "date": "2026-04-09",
+            "theme": "Departure",
+            "morning": [
+              "Check‑out of accommodation",
+              "Last‑minute souvenir shopping in Kyoto Station area"
+            ],
+            "afternoon": [
+              "Lunch at Veg Out Kyoto (vegetarian) before heading to the airport"
+            ],
+            "evening": [
+              "Depart from Kansai International Airport"
+            ],
+            "meals": [
+              "Breakfast: Hotel breakfast",
+              "Lunch: Veg Out Kyoto – vegetarian set",
+              "Dinner: On‑board flight meal (request vegetarian option)"
+            ],
+            "estimated_daily_cost_usd": 96.5,
+            "driving_notes": null
+          }
+        ],
+        "day_trips": [
+          "Myoko & Itoigawa nature and cultural day trip (April 4)",
+          "Joetsu temple day trip (April 5)"
+        ],
+        "budget": {
+          "food_estimate_usd": 1064.0,
+          "activities_estimate_usd": 1092.0,
+          "transport_estimate_usd": 392.0,
+          "buffer_usd": 252.0,
+          "total_usd": 2800.0,
+          "within_budget": true,
+          "notes": "All listed activities are free or low‑cost; major expenses are vegetarian meals (including reservations for 海のだいどこや and つるこし) and car rental/fuel for the two day‑trips. Buffer covers souvenirs and any unexpected fees."
+        },
+        "tips": [
+          "Reserve 海のだいどこや and つるこし at least 3 days in advance using the provided booking URLs.",
+          "For the long drives, rent a compact car with GPS; tolls are minimal but keep cash for rural roads.",
+          "April is cherry‑blossom season – bring a light jacket and an umbrella.",
+          "Kyoto city buses accept the 1‑day pass (¥900 ≈ $6.5); it’s the cheapest way to move around on non‑driving days.",
+          "All selected restaurants offer vegetarian (shojin) menus; confirm any vegan needs when you book."
+        ]
+      },
+      "reservation_checklist": [
+        {
+          "name": "Joshin-Etsu Expressway",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Joshin-Etsu+Expressway+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "海のだいどこや",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=%E6%B5%B7%E3%81%AE%E3%81%A0%E3%81%84%E3%81%A9%E3%81%93%E3%82%84+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "つるこし",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=%E3%81%A4%E3%82%8B%E3%81%93%E3%81%97+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Lunch: Café Bibliothèque (vegetarian menu, backup: Veg Out Kyoto)",
+          "category": "restaurant",
+          "reservation_required": true,
+          "lead_time_days": 7,
+          "booking_url": "https://www.opentable.com/s?term=Lunch%3A+Caf%C3%A9+Biblioth%C3%A8que+%28vegetarian+menu%2C+backup%3A+Veg+Out+Kyoto%29+Kyoto",
+          "booking_platform": "OpenTable or Resy",
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Lunch: Veggie House Joetsu (vegetarian café, backup: convenience store bento with veggie options)",
+          "category": "restaurant",
+          "reservation_required": true,
+          "lead_time_days": 7,
+          "booking_url": "https://www.opentable.com/s?term=Lunch%3A+Veggie+House+Joetsu+%28vegetarian+caf%C3%A9%2C+backup%3A+convenience+store+bento+with+veggie+options%29+Kyoto",
+          "booking_platform": "OpenTable or Resy",
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Free time to explore Joetsu town centre or relax at a café",
+          "category": "restaurant",
+          "reservation_required": true,
+          "lead_time_days": 7,
+          "booking_url": "https://www.opentable.com/s?term=Free+time+to+explore+Joetsu+town+centre+or+relax+at+a+caf%C3%A9+Kyoto",
+          "booking_platform": "OpenTable or Resy",
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Lunch: Café Bibliothèque (vegetarian) or any local café",
+          "category": "restaurant",
+          "reservation_required": true,
+          "lead_time_days": 7,
+          "booking_url": "https://www.opentable.com/s?term=Lunch%3A+Caf%C3%A9+Biblioth%C3%A8que+%28vegetarian%29+or+any+local+caf%C3%A9+Kyoto",
+          "booking_platform": "OpenTable or Resy",
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Dinner: Mumokuteki Café – vegetarian set menu",
+          "category": "restaurant",
+          "reservation_required": true,
+          "lead_time_days": 7,
+          "booking_url": "https://www.opentable.com/s?term=Dinner%3A+Mumokuteki+Caf%C3%A9+%E2%80%93+vegetarian+set+menu+Kyoto",
+          "booking_platform": "OpenTable or Resy",
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Breakfast: Hotel breakfast (included)",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Breakfast%3A+Hotel+breakfast+%28included%29+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Dinner: Kikunoi H – vegetarian kaiseki (reserve in advance)",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Dinner%3A+Kikunoi+H+%E2%80%93+vegetarian+kaiseki+%28reserve+in+advance%29+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Arrive at Kansai International Airport, take the JR Haruka to Kyoto Station",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Arrive+at+Kansai+International+Airport%2C+take+the+JR+Haruka+to+Kyoto+Station+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Check‑in at your accommodation (handled by the lodging agent)",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Check%E2%80%91in+at+your+accommodation+%28handled+by+the+lodging+agent%29+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Leisurely walk around the historic Higashiyama district – optional free self‑guided stroll",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Leisurely+walk+around+the+historic+Higashiyama+district+%E2%80%93+optional+free+self%E2%80%91guided+stroll+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Vegetarian kaiseki dinner at Kikunoi H (reservation recommended; tip‑based) – aligns with your interest in kaiseki",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Vegetarian+kaiseki+dinner+at+Kikunoi+H+%28reservation+recommended%3B+tip%E2%80%91based%29+%E2%80%93+aligns+with+your+interest+in+kaiseki+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Breakfast: Hotel breakfast",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Breakfast%3A+Hotel+breakfast+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Lunch: えほん – vegetarian set (backup: local noodle shop with veggie options)",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Lunch%3A+%E3%81%88%E3%81%BB%E3%82%93+%E2%80%93+vegetarian+set+%28backup%3A+local+noodle+shop+with+veggie+options%29+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Dinner: 海のだいどこや – reserve via provided link",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Dinner%3A+%E6%B5%B7%E3%81%AE%E3%81%A0%E3%81%84%E3%81%A9%E3%81%93%E3%82%84+%E2%80%93+reserve+via+provided+link+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Drive 3 h 30 min to Myoko",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Drive+3%E2%80%AFh+30%E2%80%AFmin+to+Myoko+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Visit 新井総合公園",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Visit+%E6%96%B0%E4%BA%95%E7%B7%8F%E5%90%88%E5%85%AC%E5%9C%92+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Visit 学校町2号公園",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Visit+%E5%AD%A6%E6%A0%A1%E7%94%BA2%E5%8F%B7%E5%85%AC%E5%9C%92+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Visit 市民の広場",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Visit+%E5%B8%82%E6%B0%91%E3%81%AE%E5%BA%83%E5%A0%B4+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Lunch at えほん (vegetarian, no reservation needed) in Itoigawa",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Lunch+at+%E3%81%88%E3%81%BB%E3%82%93+%28vegetarian%2C+no+reservation+needed%29+in+Itoigawa+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Visit 筒石観音堂 (culture) – short walk around the temple grounds",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Visit+%E7%AD%92%E7%9F%B3%E8%A6%B3%E9%9F%B3%E5%A0%82+%28culture%29+%E2%80%93+short+walk+around+the+temple+grounds+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Dinner at 海のだいどこや in Joetsu (reservation required; enjoy seaside vegetarian dishes)",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Dinner+at+%E6%B5%B7%E3%81%AE%E3%81%A0%E3%81%84%E3%81%A9%E3%81%93%E3%82%84+in+Joetsu+%28reservation+required%3B+enjoy+seaside+vegetarian+dishes%29+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Return to Kyoto (≈3 h 30 min drive)",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Return+to+Kyoto+%28%E2%89%883%E2%80%AFh+30%E2%80%AFmin+drive%29+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Dinner: つるこし – reserve via provided link",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Dinner%3A+%E3%81%A4%E3%82%8B%E3%81%93%E3%81%97+%E2%80%93+reserve+via+provided+link+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Drive to Joetsu (≈3 h)",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Drive+to+Joetsu+%28%E2%89%883%E2%80%AFh%29+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Visit 浄興寺",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Visit+%E6%B5%84%E8%88%88%E5%AF%BA+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Visit 正光寺",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Visit+%E6%AD%A3%E5%85%89%E5%AF%BA+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Dinner at つるこし (reservation required; vegetarian izakaya style)",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Dinner+at+%E3%81%A4%E3%82%8B%E3%81%93%E3%81%97+%28reservation+required%3B+vegetarian+izakaya+style%29+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        },
+        {
+          "name": "Drive back to Kyoto",
+          "category": "other",
+          "reservation_required": false,
+          "lead_time_days": null,
+          "booking_url": "https://www.google.com/search?q=Drive+back+to+Kyoto+Kyoto+official+reservations+book+tickets",
+          "booking_platform": null,
+          "notes": "Book on the official site when possible; third-party aggregators as backup.",
+          "scheduled_day": null
+        }
+      ],
+      "user_preferences": [
+        "[culture] 筒石観音堂",
+        "[culture] 浄興寺",
+        "[culture] 正光寺",
+        "[nature] 新井総合公園",
+        "[nature] 学校町2号公園",
+        "[nature] 市民の広場",
+        "[food] えほん",
+        "[food] 海のだいどこや",
+        "[food] つるこし"
+      ]
+    }
+  },
+  {
+    "request": {
+      "action": "status",
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d"
+    },
+    "response": {
+      "session_id": "aaa5f29e-cfce-4db6-943c-c5535b85f55d",
+      "status": "completed",
+      "phase": "finalize",
+      "categories": [
+        "culture",
+        "nature",
+        "food"
+      ],
+      "current_category": null,
+      "round": 0,
+      "user_preferences": [
+        "[culture] 筒石観音堂",
+        "[culture] 浄興寺",
+        "[culture] 正光寺",
+        "[nature] 新井総合公園",
+        "[nature] 学校町2号公園",
+        "[nature] 市民の広場",
+        "[food] えほん",
+        "[food] 海のだいどこや",
+        "[food] つるこし"
+      ]
+    }
+  }
+]

@@ -13,3 +13,5 @@ app_doc.docx
 ~$*.docx
 .idea/
 .vscode/
+examples\mock_orchestrator.py
+examples\mock_run.json

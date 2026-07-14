@@ -20,7 +20,8 @@ class TravelAgentState(TypedDict):
     phase: str
     current_recommendations: str | None  # latest AI-generated recommendations (JSON string)
     user_preferences: list[str]          # user's expressed interests/picks accumulated over the chat
-    last_user_input: str | None          # most recent user message (used for routing)
+    last_user_input: str | None          # readable form of the most recent user reply
+    last_feedback: dict | None           # structured FeedbackPayload dump (used for routing)
     categories: list[str]                # ordered activity categories to walk through
     current_category_index: int          # position in categories
     category_refinement_count: int       # recommendation rounds done for the current category

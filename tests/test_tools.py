@@ -14,7 +14,11 @@ from travel_agent.models import (
     TravelStyle,
     TripRequest,
 )
-from travel_agent.tools.activities import _category_from_kinds, _kinds_for_interests
+from travel_agent.tools.activities import (
+    _ITEM_CATEGORIES,
+    _categories_for_interests,
+    _category_from_kinds,
+)
 from travel_agent.tools.budget import estimate_budget_breakdown
 from travel_agent.tools.geo import max_drive_radius_miles, within_drive_radius
 from travel_agent.tools.reservations import reservation_item_for_activity
@@ -46,29 +50,32 @@ def test_budget_breakdown_within_budget():
 
 
 def test_category_from_kinds_maps_to_interest_vocabulary():
-    assert _category_from_kinds("historic_architecture,interesting_places") == "culture"
-    assert _category_from_kinds("casino,adult") == "nightlife"
-    assert _category_from_kinds("beaches,natural") == "beach"
-    assert _category_from_kinds("foods,restaurants") == "food"
-    assert _category_from_kinds("zoos,amusements") == "family"
-    assert _category_from_kinds("water_parks,amusements") == "family"
-    assert _category_from_kinds("circuses,theatres_and_entertainments") == "family"
-    assert _category_from_kinds("planetariums,museums") == "family"
-    assert _category_from_kinds("gardens_and_parks,urban_environment") == "nature"
-    assert _category_from_kinds("nature_reserves") == "nature"
-    assert _category_from_kinds("view_points,other") == "nature"
-    assert _category_from_kinds("restaurants") == "food"
-    assert _category_from_kinds("cafes") == "food"
-    assert _category_from_kinds("religion,temples") == "culture"
-    assert _category_from_kinds("kitesurfing,sport") == "adventure"
-    assert _category_from_kinds("sport_shops,shops") == "shopping"
-    # unknown kinds land in the generic sightseeing bucket
-    assert _category_from_kinds("some_new_opentripmap_kind") == "culture"
+    assert _category_from_kinds("tourism.sights.castle,tourism.sights") == "culture"
+    assert _category_from_kinds("religion.place_of_worship.buddhism") == "culture"
+    assert _category_from_kinds("adult.casino") == "nightlife"
+    assert _category_from_kinds("beach,natural") == "beach"
+    assert _category_from_kinds("catering.restaurant,catering") == "food"
+    assert _category_from_kinds("entertainment.zoo") == "family"
+    assert _category_from_kinds("entertainment.water_park") == "family"
+    assert _category_from_kinds("entertainment.planetarium") == "family"
+    assert _category_from_kinds("leisure.park.garden,leisure.park") == "nature"
+    assert _category_from_kinds("natural.water.spring") == "nature"
+    assert _category_from_kinds("tourism.attraction.viewpoint") == "nature"
+    assert _category_from_kinds("sport.dive_centre") == "adventure"
+    assert _category_from_kinds("commercial.shopping_mall") == "shopping"
+    # unknown ids land in the generic sightseeing bucket
+    assert _category_from_kinds("some.new.geoapify.category") == "culture"
 
 
 def test_category_from_kinds_always_in_closed_list():
     valid = {i.value for i in Interest}
-    for kinds in ("museums", "skyscrapers,architecture", "sport,climbing", "shops,marketplaces", ""):
+    for kinds in (
+        "entertainment.museum",
+        "man_made.tower",
+        "sport,climbing",
+        "commercial.marketplace",
+        "",
+    ):
         assert _category_from_kinds(kinds) in valid
 
 
@@ -76,20 +83,34 @@ def test_every_checklist_item_has_a_group():
     assert set(INTEREST_GROUP) == set(InterestOption)
 
 
-def test_kinds_granular_items_pass_through():
-    kinds = _kinds_for_interests([InterestOption.BUDDHIST_TEMPLES, InterestOption.VIEW_POINTS])
-    assert set(kinds.split(",")) == {"buddhist_temples", "view_points"}
+def test_every_poi_item_has_geoapify_categories():
+    group_names = {i.value for i in Interest}
+    for option in InterestOption:
+        if option in NON_POI_OPTIONS or option.value in group_names:
+            continue
+        assert option in _ITEM_CATEGORIES, f"missing Geoapify mapping for {option}"
 
 
-def test_kinds_group_selection_expands():
-    kinds = _kinds_for_interests([InterestOption.CULTURE])
-    assert "museums" in kinds and "religion" in kinds
+def test_categories_granular_items_map_to_geoapify():
+    categories = _categories_for_interests(
+        [InterestOption.BUDDHIST_TEMPLES, InterestOption.VIEW_POINTS]
+    )
+    assert set(categories.split(",")) == {
+        "religion.place_of_worship.buddhism",
+        "tourism.attraction.viewpoint",
+    }
 
 
-def test_kinds_non_poi_items_are_skipped():
-    assert _kinds_for_interests(list(NON_POI_OPTIONS)) == "interesting_places"
-    kinds = _kinds_for_interests([InterestOption.FREE_TOURS, InterestOption.CAFES])
-    assert kinds == "cafes"
+def test_categories_group_selection_expands():
+    categories = _categories_for_interests([InterestOption.CULTURE])
+    assert "entertainment.museum" in categories
+    assert "tourism.sights.place_of_worship" in categories
+
+
+def test_categories_non_poi_items_are_skipped():
+    assert _categories_for_interests(list(NON_POI_OPTIONS)) == ""
+    categories = _categories_for_interests([InterestOption.FREE_TOURS, InterestOption.CAFES])
+    assert categories == "catering.cafe"
 
 
 def test_trip_request_accepts_granular_interests():
@@ -101,7 +122,7 @@ def test_trip_request_accepts_granular_interests():
         interests=["buddhist_temples", "free_tours"],
     )
     groups = {INTEREST_GROUP[opt] for opt in trip.interests}
-    assert groups == {Interest.CULTURE, Interest.FOOD}
+    assert groups == {Interest.CULTURE}
 
 
 def test_trip_request_rejects_unknown_interest():
@@ -116,9 +137,11 @@ def test_trip_request_rejects_unknown_interest():
 
 
 def test_bars_and_malls_bucketing():
-    assert _category_from_kinds("foods,bars") == "nightlife"
-    assert _category_from_kinds("pubs,foods") == "nightlife"
-    assert _category_from_kinds("malls,shops") == "shopping"
+    assert _category_from_kinds("catering.bar,catering") == "nightlife"
+    assert _category_from_kinds("catering.pub") == "nightlife"
+    assert _category_from_kinds("commercial.shopping_mall,commercial") == "shopping"
+    # public_bath must NOT hit a bare "pub" token
+    assert _category_from_kinds("leisure.spa.public_bath") == "family"
 
 
 def test_reservation_item_restaurant():
