@@ -2,24 +2,105 @@
 
 from __future__ import annotations
 
-from travel_agent.models import Activity, GeoLocation, Interest, TripRequest
+from travel_agent.models import (
+    NON_POI_OPTIONS,
+    Activity,
+    GeoLocation,
+    Interest,
+    InterestOption,
+    TripRequest,
+)
 from travel_agent.tools.geo import (
     drive_minutes,
     fetch_opentripmap_pois,
     within_drive_radius,
 )
 
-# Interest → OpenTripMap kind mapping
+# Interest → OpenTripMap kind mapping (query side).
+# historic_architecture lives under the "architecture" branch, not "historic",
+# so culture must request it explicitly to get palaces/amphitheatres.
+# Nightlife queries specific adult sub-kinds (casino, nightclubs, alcohol)
+# rather than the whole "adult" branch, which would pull in seedier venues.
 _INTEREST_KINDS: dict[Interest, str] = {
-    Interest.NATURE: "natural",
-    Interest.CULTURE: "cultural,historic,museums",
-    Interest.FOOD: "foods",
-    Interest.ADVENTURE: "sport",
-    Interest.FAMILY: "amusements,zoos,aquariums",
+    # gardens_and_parks sits under cultural/urban_environment and view_points
+    # under "other" — neither is inside the natural branch. nature_reserves is
+    # a child of natural (already fetched), listed explicitly for clarity.
+    Interest.NATURE: "natural,nature_reserves,gardens_and_parks,view_points",
+    # religion (temples, monasteries, cathedrals) is its own branch — without
+    # it a "Kyoto temples" trip fetches no temples
+    Interest.CULTURE: "cultural,historic,museums,historic_architecture,religion",
+    # restaurants/cafes are children of foods (already fetched), explicit for clarity
+    Interest.FOOD: "foods,restaurants,cafes",
+    # specific sub-kinds instead of the whole "sport" branch, which also
+    # contains non-adventure venues (stadiums, pools)
+    Interest.ADVENTURE: "climbing,diving,surfing,kitesurfing,winter_sports",
+    # children_theatres/circuses sit under cultural/theatres_and_entertainments,
+    # planetariums under cultural/museums; amusements covers water parks, rides
+    Interest.FAMILY: "amusements,zoos,aquariums,children_theatres,circuses,planetariums",
     Interest.BEACH: "beaches",
     Interest.SHOPPING: "shops",
-    Interest.NIGHTLIFE: "foods",
+    # restaurants (not all of foods) — evening dining, not bakeries/picnic sites
+    Interest.NIGHTLIFE: "restaurants,nightclubs,casino,alcohol",
 }
+
+# OpenTripMap kind → Interest category (bucketing side). POIs carry many
+# hierarchical kind slugs (e.g. "historic_architecture,interesting_places");
+# matching is by substring per slug, first hit wins, so specific tokens
+# (casino, beach) come before broad ones (natural, cultural).
+_KIND_CATEGORY: dict[str, str] = {
+    "casino": "nightlife",
+    "nightclub": "nightlife",
+    "alcohol": "nightlife",
+    "hookah": "nightlife",
+    # pubs/bars/biergartens are foods-branch kinds but belong in the
+    # nightlife round; must precede the "foods" token
+    "pub": "nightlife",
+    "bar": "nightlife",
+    "biergarten": "nightlife",
+    "beach": "beach",
+    # water_park must precede the nature tokens ("water") below
+    "water_park": "family",
+    "amusement": "family",
+    "roller_coaster": "family",
+    "ferris": "family",
+    "zoo": "family",
+    "aquarium": "family",
+    "children_theatre": "family",
+    "circus": "family",
+    "planetarium": "family",
+    # "natur" covers both "natural" and "nature_reserves"
+    "natur": "nature",
+    "garden": "nature",
+    "view_point": "nature",
+    "water": "nature",
+    "foods": "food",
+    "restaurant": "food",
+    "cafe": "food",
+    # shop before sport: the shops branch contains "sport_shops"
+    "shop": "shopping",
+    "mall": "shopping",
+    "market": "shopping",
+    "sport": "adventure",
+    "climbing": "adventure",
+    "diving": "adventure",
+    "surf": "adventure",
+}
+
+
+def _category_from_kinds(kinds: str) -> str:
+    """Normalize OpenTripMap kinds onto the closed 8-group vocabulary.
+
+    Token-priority matching: tokens are tried in _KIND_CATEGORY order against
+    ALL of the POI's kind slugs, so specific tokens (casino, bar, water_park)
+    win over broad branch names (foods, natural) regardless of the order
+    OpenTripMap lists the slugs in. Unmatched kinds (cultural, historic,
+    religion, ...) default to "culture", the generic sightseeing bucket.
+    """
+    kind_list = [kind.strip().lower() for kind in kinds.split(",")]
+    for token, category in _KIND_CATEGORY.items():
+        if any(token in kind for kind in kind_list):
+            return category
+    return "culture"
 
 # Fallback curated suggestions when no API key (agent enriches via web search)
 _FALLBACK_BY_REGION: dict[str, list[dict]] = {
@@ -52,11 +133,23 @@ _FALLBACK_BY_REGION: dict[str, list[dict]] = {
 }
 
 
-def _kinds_for_interests(interests: list[Interest]) -> str:
-    kinds = set()
-    for interest in interests:
-        for part in _INTEREST_KINDS.get(interest, "interesting_places").split(","):
-            kinds.add(part.strip())
+def _kinds_for_interests(interests: list[InterestOption]) -> str:
+    """Build the OpenTripMap kinds query from checked checklist items.
+
+    Whole-group selections (e.g. "culture") expand to the group's curated
+    kinds; granular items pass through as-is (their value IS the API slug);
+    web-search-backed items (free_tours, ...) have no POI kind
+    and are skipped — the research agent covers them via web search.
+    """
+    kinds: set[str] = set()
+    for option in interests:
+        if option in NON_POI_OPTIONS:
+            continue
+        if option.value in Interest._value2member_map_:
+            group_kinds = _INTEREST_KINDS[Interest(option.value)]
+            kinds.update(part.strip() for part in group_kinds.split(","))
+        else:
+            kinds.add(option.value)
     return ",".join(sorted(kinds)) or "interesting_places"
 
 
@@ -73,7 +166,7 @@ def _poi_to_activity(poi: dict, origin: GeoLocation) -> Activity | None:
     kinds = props.get("kinds", "place")
     return Activity(
         name=name,
-        category=kinds.split(",")[0],
+        category=_category_from_kinds(kinds),
         description=props.get("wikidata") or f"Popular {kinds.replace(',', ' / ')} near {origin.name}.",
         latitude=lat,
         longitude=lon,

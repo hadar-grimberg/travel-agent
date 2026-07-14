@@ -17,6 +17,8 @@ RESEARCH_PROMPT = BASE_PERSONA + """
 ## Current phase: RESEARCH
 Use your tools to geocode the destination, discover nearby activities within drive radius,
 and estimate budget allocation. Gather concrete venue names and drive times.
+Free walking tours, guided tours, and dietary-specific dining (vegan, vegetarian, kosher)
+are not in POI data — use web search to find them when relevant to the trip.
 
 Do not write the final itinerary yet — focus on high-quality research notes.
 When done, summarize findings clearly for the planning phase.

@@ -15,6 +15,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.types import Command, interrupt
 
 from travel_agent.models import (
+    INTEREST_GROUP,
     Itinerary,
     RecommendationResponse,
     ResearchBundle,
@@ -122,7 +123,11 @@ def bootstrap_research_node(state: TravelAgentState) -> dict:
             f"style={trip.travel_style.value}, interests={[i.value for i in trip.interests]}."
         ),
     )
-    categories = list(dict.fromkeys(a.category for a in activities)) or ["general"]
+    # One round per category GROUP of the checked items, in checklist order —
+    # granular picks (buddhist_temples, view_points, ...) share their group's round.
+    categories = list(
+        dict.fromkeys(INTEREST_GROUP[opt].value for opt in trip.interests)
+    ) or ["culture"]
     return {
         "research": bundle,
         "categories": categories,
@@ -177,6 +182,30 @@ reservations_agent = _agent_node_factory("reservations", RESEARCH_TOOLS)
 finalize_agent = _agent_node_factory("finalize")
 
 
+def merge_research_notes_node(state: TravelAgentState) -> dict:
+    """Fold the research agent's final summary into the ResearchBundle.
+
+    Web-search findings (free tours, dietary dining, booking info) only exist
+    in the research agent's closing message; recommendation rounds read the
+    bundle, so persist the summary there instead of relying on it surviving
+    the rolling chat window.
+    """
+    research = state.get("research")
+    summary = ""
+    for msg in reversed(state.get("messages", [])):
+        if isinstance(msg, AIMessage) and not msg.tool_calls:
+            content = msg.content if isinstance(msg.content, str) else str(msg.content)
+            if content.strip():
+                summary = content
+                break
+    if research is None or not summary:
+        return {}
+    merged = research.model_copy(
+        update={"raw_notes": f"{research.raw_notes}\n\nResearch agent findings:\n{summary[:4000]}"}
+    )
+    return {"research": merged}
+
+
 # Recommendation rounds allowed per category: 1 initial + up to 5 refinements
 MAX_ROUNDS_PER_CATEGORY = 6
 
@@ -219,12 +248,22 @@ def generate_recommendations_node(state: TravelAgentState) -> dict:
     llm = _model(max_tokens=2000, reasoning_effort="low")
     research_json = research.model_dump_json()[:6000] if research else "{}"
 
+    # Granular checklist items the user checked within this category group
+    checked_items = [
+        opt.value for opt in trip.interests if INTEREST_GROUP[opt].value == category
+    ]
+
     system = (
         BASE_PERSONA + "\n\n"
         f"You are walking the user through activity options one category at a time. "
         f"Current category: '{category}' (round {round_number} of {MAX_ROUNDS_PER_CATEGORY}). "
+        f"The user specifically checked these interests in this category: {checked_items}. "
         f"Remaining categories after this one: {remaining or 'none'}.\n"
-        "Recommend only activities from the current category. "
+        "Recommend only activities from the current category, prioritizing the checked "
+        "interests. Checked items like free_tours, guided_tours, have no POI data — "
+        "cover them from the research notes and your knowledge of the destination. "
+        "When recommending food or dining, strictly honor the trip's dietary_restrictions "
+        "(e.g. vegan, vegetarian, kosher). "
         "In the question field, ask the user to pick favorites, request more like these, "
         "or say 'approve' to move to the next category.\n\n"
         + parser.get_format_instructions()
@@ -428,6 +467,7 @@ def build_graph(checkpointer=None):
     graph.add_node("bootstrap_research", bootstrap_research_node)
     graph.add_node("research_agent", research_agent)
     graph.add_node("research_tools", ToolNode(RESEARCH_TOOLS))
+    graph.add_node("merge_research_notes", merge_research_notes_node)
     graph.add_node("generate_recommendations", generate_recommendations_node)
     graph.add_node("wait_for_user", wait_for_user_node)
     graph.add_node("advance_category", advance_category_node)
@@ -444,9 +484,10 @@ def build_graph(checkpointer=None):
     graph.add_conditional_edges(
         "research_agent",
         should_continue_research,
-        {"tools": "research_tools", "plan": "generate_recommendations"},
+        {"tools": "research_tools", "plan": "merge_research_notes"},
     )
     graph.add_edge("research_tools", "research_agent")
+    graph.add_edge("merge_research_notes", "generate_recommendations")
 
     # Category-by-category recommendation loop — refine within a category until
     # the user approves it (or the round limit is hit), then advance; after the

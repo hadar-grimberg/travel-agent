@@ -72,7 +72,22 @@ Every `interrupt()` pause in the graph becomes an `awaiting_feedback` response; 
 }
 ```
 
-Required trip fields: `destination`, `start_date`, `end_date`, `budget_usd`. Defaults: `travelers` 2, `interests` `["culture", "food"]`, `travel_style` `"balanced"`. Enums: `interests` ∈ nature, food, culture, adventure, nightlife, family, shopping, beach; `travel_style` ∈ relaxed, balanced, packed.
+Required trip fields: `destination`, `start_date`, `end_date`, `budget_usd`. Defaults: `travelers` 2, `interests` `["culture", "food"]`, `travel_style` `"balanced"`. Enums: `travel_style` ∈ relaxed, balanced, packed.
+
+**`interests` is a closed granular checklist, grouped into 8 categories.** The orchestrator presents the items below as checkboxes; checking a **group name** selects that whole group. The recommendation loop runs **one round per category group that has checked items**, in checklist order — so granular picks like `buddhist_temples` and `museums` share a single culture round. Values outside the list fail validation.
+
+| Group (= round) | Checklist items                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|---|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `culture` | `museums`, `theatres_and_entertainments`, `urban_environment`, `historical_places`, `fortifications`, `monuments_and_memorials`, `archaeology`, `burial_places`, `historic_architecture`, `skyscrapers`, `bridges`, `towers`, `lighthouses`, `religion`, `churches`, `cathedrals`, `mosques`, `synagogues`, `buddhist_temples`, `hindu_temples`, `egyptian_temples`, `other_temples`, `monasteries`, `free_tours`†, `guided_tours`† |
+| `nature` | `nature_reserves`, `gardens_and_parks`, `view_points`, `islands`, `natural_springs`, `geological_formations`, `water`, `glaciers`                                                                                                                                                                                                                                                                                                   |
+| `beach` | `beaches`                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `food` | `restaurants`, `cafes`, `bakeries`, `fast_food`, `food_courts`, `picnic_site`                                                                                                                                                                                                                                                                                                                                                       |
+| `nightlife` | `pubs`, `bars`, `biergartens`, `nightclubs`, `casino`, `alcohol`, `hookah`                                                                                                                                                                                                                                                                                                                                                          |
+| `adventure` | `climbing`, `diving`, `surfing`, `kitesurfing`, `winter_sports`, `stadiums`, `pools`                                                                                                                                                                                                                                                                                                                                                |
+| `family` | `amusement_parks`, `water_parks`, `zoos`, `aquariums`, `children_theatres`, `circuses`, `planetariums`, `miniature_parks`, `roller_coasters`, `ferris_wheels`, `baths_and_saunas`                                                                                                                                                                                                                                                   |
+| `shopping` | `malls`, `marketplaces`, `outdoor`, `supermarkets`, `conveniences`, `fish_stores`                                                                                                                                                                                                                                                                                                                                                   |
+
+† Web-search-backed: these have no OpenTripMap POI kind — the research agent finds them via web search and the recommendation rounds cover them from those findings. All other item values are exact OpenTripMap kind slugs and pass straight into the POI query.
 
 Free-text alternative:
 
@@ -227,7 +242,7 @@ The second prints every JSON response and reads feedback from stdin — useful f
 ```mermaid
 flowchart TD
     START --> intake[intake: structured trip or LLM parse]
-    intake --> bootstrap[bootstrap_research: geocode + POIs + budget + categories]
+    intake --> bootstrap[bootstrap_research: geocode + POIs + budget; categories = chosen interests]
     bootstrap --> research[research_agent + tools loop]
     research --> recommend[generate_recommendations: JSON, current category]
     recommend --> wait[wait_for_user]
@@ -246,7 +261,7 @@ flowchart TD
 
 ### The category loop
 
-1. `bootstrap_research` derives an ordered category list from the discovered activities.
+1. The rounds are the category groups of the user's checked checklist items, in order; granular picks pass straight into the OpenTripMap query, and discovered activities are bucketed back onto the 8 groups via `_category_from_kinds`.
 2. `generate_recommendations` covers **one category per round**, emitting a validated `RecommendationResponse` JSON. Round 1 presents the category's researched options; rounds 2–6 recommend activities *similar to the user's picks*, without repeating.
 3. `wait_for_user` pauses via `interrupt()`. Picks are stored tagged with their category (`[food] ...`); approval/quit commands are not recorded as preferences.
 4. Routing: approval (or the 1-initial + 5-refinement limit) advances the category; after the last one the itinerary builds automatically.
