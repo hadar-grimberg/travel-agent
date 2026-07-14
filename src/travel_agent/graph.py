@@ -32,7 +32,8 @@ from travel_agent.tools.langchain_tools import RESEARCH_TOOLS
 from travel_agent.tools.reservations import build_reservation_plan
 
 
-def _model(max_tokens=4096, reasoning_effort="low") -> ChatOpenAI:
+def _token_model(max_tokens=4096, reasoning_effort="low") -> ChatOpenAI:
+    """Nebius per-token API (default provider)."""
     return ChatOpenAI(
         model=os.getenv("TRAVEL_AGENT_MODEL", "gpt-4o-mini"),
         base_url=os.getenv("NEBIUS_BASE_URL"),
@@ -43,6 +44,28 @@ def _model(max_tokens=4096, reasoning_effort="low") -> ChatOpenAI:
         # so they land in the raw request body regardless of ChatOpenAI's schema.
         extra_body={"reasoning_effort": reasoning_effort},
     )
+
+
+def _serverless_model(max_tokens=4096) -> ChatOpenAI:
+    """Nebius serverless dedicated endpoint (OpenAI-compatible).
+
+    The endpoint ID is passed as the model name; reasoning_effort is not sent —
+    dedicated endpoints serve a fixed model that may not accept it.
+    """
+    return ChatOpenAI(
+        model=os.environ["NEBIUS_ENDPOINT_ID"],
+        base_url=os.environ["NEBIUS_ENDPOINT_URL"],
+        api_key=os.getenv("NEBIUS_API_KEY", "not-needed"),
+        temperature=0.3,
+        max_tokens=max_tokens,
+    )
+
+
+def _model(max_tokens=4096, reasoning_effort="low") -> ChatOpenAI:
+    """Select the LLM backend via TRAVEL_AGENT_LLM_PROVIDER: "token" (default) or "serverless"."""
+    if os.getenv("TRAVEL_AGENT_LLM_PROVIDER", "token").strip().lower() == "serverless":
+        return _serverless_model(max_tokens=max_tokens)
+    return _token_model(max_tokens=max_tokens, reasoning_effort=reasoning_effort)
 
 
 def _parse_trip_request(text: str) -> TripRequest:
