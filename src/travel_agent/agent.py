@@ -30,6 +30,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import Command
 from pydantic import ValidationError
 
+from travel_agent.config import Settings
 from travel_agent.graph import build_graph
 from travel_agent.models import FeedbackPayload, TripRequest
 
@@ -39,11 +40,18 @@ ENDED = "ended"
 
 
 class ActivitiesAgent:
-    """Session-based wrapper around the travel agent graph."""
+    """Session-based wrapper around the travel agent graph.
 
-    def __init__(self):
+    Args:
+        settings: Injected configuration (LLM provider, keys). When omitted,
+            settings are read from environment variables; with no LLM
+            credentials configured the agent runs in keyless mock mode.
+    """
+
+    def __init__(self, settings: Settings | None = None):
+        self.settings = settings or Settings.from_env()
         self._checkpointer = MemorySaver()
-        self._app = build_graph(checkpointer=self._checkpointer)
+        self._app = build_graph(checkpointer=self._checkpointer, settings=self.settings)
         self._sessions: dict[str, str] = {}  # session_id -> status
 
     # -- public API ---------------------------------------------------------

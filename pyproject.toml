@@ -27,3 +27,8 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+markers = [
+    "e2e: tests that require live credentials / network (deselect with -m 'not e2e')",
+]

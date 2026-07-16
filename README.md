@@ -21,34 +21,93 @@ copy .env.example .env          # add API keys, see below
 travel-agent "Barcelona, 2026-09-10 to 2026-09-16, budget $4500, love food and Gaudi, relaxed pace"
 ```
 
-Environment variables (see `.env.example`):
+Environment variables (see `.env.example`) — **all optional**; with none set the agent runs in keyless mock mode (see [Configuration & keyless mode](#configuration--keyless-mode)):
 
 | Key | Purpose |
 |-----|---------|
-| `NEBIUS_API_KEY` | Required — API key for the OpenAI-compatible LLM endpoint |
-| `NEBIUS_BASE_URL` | Required — base URL of the LLM endpoint |
+| `TRAVEL_AGENT_LLM_PROVIDER` | `auto` (default), `token`, `serverless`, or `mock` |
+| `NEBIUS_API_KEY` | API key for the OpenAI-compatible LLM endpoint (provider `token`) |
+| `NEBIUS_BASE_URL` | Base URL of the LLM endpoint (provider `token`) |
+| `NEBIUS_ENDPOINT_URL` / `NEBIUS_ENDPOINT_ID` | Serverless dedicated endpoint (provider `serverless`) |
 | `TRAVEL_AGENT_MODEL` | Model name (default: `gpt-4o-mini`) |
-| `TAVILY_API_KEY` | Optional — live web search for booking requirements |
-| `GEOAPIFY_API_KEY` | Optional — Geoapify Places POI discovery within drive radius (free tier at geoapify.com) |
+| `TAVILY_API_KEY` | Live web search for booking requirements |
+| `GEOAPIFY_API_KEY` | Geoapify Places POI discovery within drive radius (free tier at geoapify.com) |
+
+## Integrating as a domain agent (Tripper-compatible)
+
+This repo is packaged to be vendored as a read-only git submodule and driven through a thin adapter — no code changes on the host side. It satisfies the domain-agent contract:
+
+| Requirement | How it's met |
+|---|---|
+| Installable package, `src/` layout | `pyproject.toml`, package `travel_agent`, `pip install -e .` |
+| One sync entry point, dict→dict | `ActivitiesAgent().handle(request)` — no HTTP, no CLI, no prompts on the call path |
+| Stable import path | `from travel_agent import ActivitiesAgent` (also `Settings`, `TripRequest`, `FeedbackPayload`, `RecommendationResponse`, `Itinerary`) |
+| Stable request/response schema | Pydantic v2 models exported from the package; documented below |
+| Config by injection | `ActivitiesAgent(settings=Settings(...))`; never reads a private `.env` |
+| Keyless/offline default | No secrets → deterministic mock provider (no LLM, no network) |
+| Import-safe | `import travel_agent` needs no keys, no network, no server |
+| Offline tests | `pytest -m "not e2e"` runs fully keyless |
+
+**Definition of done** — from a clean env with zero secrets:
+
+```bash
+pip install -e .
+python -c "from travel_agent import ActivitiesAgent; print(ActivitiesAgent().handle({'action':'start','trip':{'destination':'Kyoto','start_date':'2026-04-03','end_date':'2026-04-06','budget_usd':1800,'interests':['culture','food']}}))"
+```
+
+Returns an `awaiting_feedback` response with mock recommendations — no API keys configured.
 
 ## Using it from the orchestrator: `ActivitiesAgent`
 
-`src/travel_agent/agent.py` exposes the agent as a plain object — **JSON in, JSON out**, no HTTP layer. The orchestrator creates one instance and keeps it alive for the lifetime of its sessions (state is in-process memory):
+The agent is a plain object — **JSON in, JSON out**, no HTTP layer. The orchestrator creates one instance and keeps it alive for the lifetime of its sessions (state is in-process memory):
 
 ```python
-from travel_agent.agent import ActivitiesAgent
+from travel_agent import ActivitiesAgent
 
 agent = ActivitiesAgent()
 
 out = agent.handle({"action": "start", "trip": {...}})       # dict -> dict
 out = agent.handle({"action": "feedback",
                     "session_id": out["session_id"],
-                    "feedback": "approve"})
+                    "feedback": {"selected": ["Kinkaku-ji Temple"], "approve": True}})
 
 raw = agent.handle_json('{"action": "status", "session_id": "..."}')  # str -> str
 ```
 
-Every `interrupt()` pause in the graph becomes an `awaiting_feedback` response; the orchestrator shows the recommendations to the user, collects the reply, and relays it with the `feedback` action. Errors never raise — they come back as JSON.
+Every `interrupt()` pause in the graph becomes an `awaiting_feedback` response; the orchestrator shows the recommendations to the user, collects the selections, and relays them with the `feedback` action. Errors never raise — they come back as JSON.
+
+### Configuration & keyless mode
+
+Config is taken by injection — pass a `Settings` object, or let it read the environment:
+
+```python
+from travel_agent import ActivitiesAgent, Settings
+
+# Host injects credentials (Tripper holds them; never reads your .env)
+agent = ActivitiesAgent(settings=Settings(
+    llm_provider="token",
+    nebius_api_key="...", nebius_base_url="https://...",
+))
+
+# Or from environment variables
+agent = ActivitiesAgent(settings=Settings.from_env())
+agent = ActivitiesAgent()   # equivalent — from_env() by default
+```
+
+`llm_provider` resolves as: `token` / `serverless` / `mock` are used as-is; `auto` (default) picks `token` if a Nebius key+URL are set, else `serverless` if an endpoint is set, else **`mock`**. In mock mode there is **no LLM call and no network** — geolocation and activities are stubbed, and recommendations/itinerary are built deterministically from the research bundle. This is the default for CI, local tests, and the definition-of-done check.
+
+### Schema (versioned contract)
+
+The request/response JSON below is the stable contract — treat field names as versioned (no silent renames). The underlying Pydantic v2 models are exported from the package and can be imported directly for validation/typing:
+
+- **`TripRequest`** — the `start` request's `trip` object
+- **`FeedbackPayload`** — the `feedback` object (`selected`, `approve`, `finish`, `quit`)
+- **`RecommendationResponse`** — the `recommendations` object in an `awaiting_feedback` response
+- **`Itinerary`** — the `itinerary` object in a `completed` response
+
+```python
+from travel_agent import TripRequest, FeedbackPayload, RecommendationResponse, Itinerary
+```
 
 ### Request formats
 
